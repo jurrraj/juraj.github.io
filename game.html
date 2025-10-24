@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="favicon.jpg" type="image/x-icon">
+<style>
+  body {
+    margin: 0;
+    font-family: Futura, sans-serif;
+    background: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    text-align: center;
+  }
+
+  canvas {
+    image-rendering: pixelated;
+    background: #eee;
+    border: 2px solid #000;
+  }
+
+  .button {
+    display: inline-block;
+    font-size: 14px;
+    text-decoration: none;
+    color: black;
+    border: 1px solid black;
+    padding: 12px 25px;
+    border-radius: 4px;
+    margin: 5px;
+  }
+</style>
+</head>
+<body>
+
+<canvas id="world" width="640" height="640"></canvas>
+<p>Click pixels to pet. Press SPACE to double population (food). Press DELETE to halve population.</p>
+<a href="index.html#bottom" class="button">← Back to Portfolio</a>
+
+<script>
+const canvas = document.getElementById('world');
+const ctx = canvas.getContext('2d');
+
+const gridSize = 10;
+const cols = canvas.width / gridSize;
+const rows = canvas.height / gridSize;
+
+let tiltX = 0;
+let tiltY = 0;
+
+class PixelCreature {
+  constructor(x, y, color=null) {
+    this.x = x;
+    this.y = y;
+    this.mood = 'neutral';
+    this.age = 0;
+    this.color = color || getRandomColor();
+  }
+
+  draw() {
+    ctx.fillStyle = this.color;
+    ctx.fillRect(this.x * gridSize, this.y * gridSize, gridSize, gridSize);
+  }
+
+  evolve() {
+    this.age++;
+
+    // Random movement + tilt
+    if (Math.random() < 0.5) {
+      let dx = Math.floor(Math.random() * 3) - 1;
+      let dy = Math.floor(Math.random() * 3) - 1;
+      let nx = Math.max(0, Math.min(cols -1, this.x + dx + tiltX));
+      let ny = Math.max(0, Math.min(rows -1, this.y + dy + tiltY));
+      if (!isOccupied(nx, ny)) {
+        this.x = nx;
+        this.y = ny;
+      }
+    }
+
+    // Eating other creature
+    const prey = getNearbyCreature(this.x, this.y);
+    if (prey && Math.random() < 0.05) removeCreature(prey);
+
+    // Reproduce naturally
+    if (Math.random() < 0.03) {
+      const empty = getEmptyNeighbor(this.x, this.y);
+      if (empty) creatures.push(new PixelCreature(empty.x, empty.y, this.color));
+    }
+  }
+}
+
+// Helpers
+function getRandomColor() {
+  const colors = ['#000000','#00cc00','#ff3300','#0033ff','#ff00ff','#00ffff'];
+  return colors[Math.floor(Math.random()*colors.length)];
+}
+
+function isOccupied(x,y) {
+  return creatures.some(c => c.x===x && c.y===y);
+}
+
+function getNearbyCreature(x,y) {
+  return creatures.find(c => 
+    Math.abs(c.x-x)<=1 && Math.abs(c.y-y)<=1 && !(c.x===x && c.y===y)
+  );
+}
+
+function getEmptyNeighbor(x,y) {
+  const neighbors = [];
+  for (let dx=-1; dx<=1; dx++) {
+    for (let dy=-1; dy<=1; dy++) {
+      const nx = x+dx;
+      const ny = y+dy;
+      if (nx>=0 && nx<cols && ny>=0 && ny<rows && !isOccupied(nx, ny)) {
+        neighbors.push({x:nx,y:ny});
+      }
+    }
+  }
+  if (neighbors.length ===0) return null;
+  return neighbors[Math.floor(Math.random()*neighbors.length)];
+}
+
+function removeCreature(creature) {
+  const index = creatures.indexOf(creature);
+  if (index>=0) creatures.splice(index,1);
+}
+
+// Initialize
+const creatures = [];
+for (let i=0; i<400; i++) {
+  const x = Math.floor(Math.random()*cols);
+  const y = Math.floor(Math.random()*rows);
+  if(!isOccupied(x,y)) creatures.push(new PixelCreature(x,y));
+}
+
+// Draw loop
+function drawWorld() {
+  ctx.fillStyle = '#eee';
+  ctx.fillRect(0,0,canvas.width,canvas.height);
+  creatures.forEach(c => { c.evolve(); c.draw(); });
+}
+
+// Fluid refresh
+setInterval(drawWorld, 100);
+
+// Click interaction
+canvas.addEventListener('click', (e) => {
+  const rect = canvas.getBoundingClientRect();
+  const clickX = Math.floor((e.clientX - rect.left)/gridSize);
+  const clickY = Math.floor((e.clientY - rect.top)/gridSize);
+
+  creatures.forEach(c => {
+    if (c.x===clickX && c.y===clickY) c.mood='happy';
+  });
+});
+
+// Key events
+document.addEventListener('keydown', (e) => {
+  if (e.code === 'Space') {
+    // Double population
+    const currentLength = creatures.length;
+    const newCreatures = [];
+    for (let i=0;i<currentLength;i++) {
+      const c = creatures[i];
+      const empty = getEmptyNeighbor(c.x,c.y);
+      if (empty) newCreatures.push(new PixelCreature(empty.x, empty.y, c.color));
+    }
+    creatures.push(...newCreatures);
+  }
+  if (e.code === 'Delete') {
+    // Halve population randomly
+    const half = Math.floor(creatures.length/2);
+    for (let i=0;i<half;i++) {
+      const index = Math.floor(Math.random()*creatures.length);
+      creatures.splice(index,1);
+    }
+  }
+});
+
+// Device tilt
+window.addEventListener('deviceorientation', (event) => {
+  tiltX = event.gamma / 15;
+  tiltY = event.beta / 15;
+});
+</script>
+
+</body>
+</html>
