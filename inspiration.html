@@ -119,8 +119,16 @@
 
 <a id="bottom"></b>
   
-  <script>
-document.addEventListener('contextmenu', event => event.preventDefault());
+<script>
+  // Disable right-click (desktop)
+  document.addEventListener('contextmenu', event => event.preventDefault());
+
+  // Disable long-press saving (mobile)
+  document.addEventListener('touchstart', function(event) {
+    if (event.target.tagName === 'IMG') {
+      event.preventDefault();
+    }
+  }, {passive: false});
 </script>
 
   </div>
