@@ -132,13 +132,16 @@
   // Disable right-click (desktop)
   document.addEventListener('contextmenu', event => event.preventDefault());
 
-  // Disable long-press saving (mobile)
-  document.addEventListener('touchstart', function(event) {
-    if (event.target.tagName === 'IMG') {
-      event.preventDefault();
-    }
-  }, {passive: false});
+  // Disable long-press saving (mobile) without breaking scroll
+  const images = document.querySelectorAll('img');
+  images.forEach(img => {
+    img.addEventListener('contextmenu', e => e.preventDefault()); // disable context menu
+    img.addEventListener('dragstart', e => e.preventDefault());   // disable dragging
+    img.style.userSelect = 'none';  // prevent text selection
+    img.style.pointerEvents = 'auto';
+  });
 </script>
+
 
   </div>
 
