@@ -1,38 +1,47 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  
-  <script defer src="https://cloud.umami.is/script.js" data-website-id="f792625b-0197-425e-8e45-253b0f00996d"></script>
-  
-<!-- Open Graph (Facebook, LinkedIn, WhatsApp) -->
-<meta property="og:title" content="Portfolio">
-<meta property="og:description" content="Juraj Bozic">
-<meta property="og:image" content="thumbnail.jpg">
-<meta property="og:url" content="https://www.juraj.work">
-<meta property="og:type" content="website">
-
-<!-- Twitter Card -->
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Portfolio">
-<meta name="twitter:description" content="Juraj Bozic">
-<meta name="twitter:image" content="thumbnail.jpg">
-
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>juraj.work</title>
   <link rel="icon" href="favicon.jpg" type="image/x-icon">
+
+  <!-- Open Graph / Twitter (kept from original) -->
+  <meta property="og:title" content="Portfolio">
+  <meta property="og:description" content="Juraj Bozic">
+  <meta property="og:image" content="thumbnail.jpg">
+  <meta property="og:url" content="https://www.juraj.work">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Portfolio">
+  <meta name="twitter:description" content="Juraj Bozic">
+  <meta name="twitter:image" content="thumbnail.jpg">
+
   <style>
-    body {
+    /* Reset / layout */
+    html, body {
+      height: 100%;
       margin: 0;
-      font-family: Futura;
+      padding: 0;
+      -webkit-overflow-scrolling: touch; /* smooth native scrolling on iOS */
+      touch-action: auto; /* don't block scrolling gestures */
       background: #fff;
       color: #000;
+      font-family: "Futura", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     }
+
+    /* Images fill width and allow normal touch behaviour */
     img {
       display: block;
       width: 100%;
       height: auto;
+      user-select: none;            /* prevents selection highlight */
+      -webkit-user-drag: none;      /* prevents drag image in iOS/Chrome */
+      -webkit-touch-callout: none;  /* disables long-press menu on iOS */
+      touch-action: manipulation;   /* still allows scrolling/pinch but disables double-tap-to-zoom default */
+      pointer-events: auto;
     }
+
     .text-section {
       max-width: 1500px;
       margin: 80px auto;
@@ -42,12 +51,31 @@
       line-height: 2;
       color: #000;
     }
-}
 
+    a.inspiration {
+      display:inline-block;
+      margin-top:40px;
+      font-size:12px;
+      text-decoration:none;
+      color:black;
+      padding:10px 20px;
+      border-radius:4px;
+    }
+
+    /* optional: make sure images don't cause weird overscroll bounce issues */
+    body {
+      overscroll-behavior-y: auto;
+    }
+
+    /* small-screen tweaks */
+    @media (max-width: 600px) {
+      .text-section { padding: 0 16px; font-size: 13px; }
+    }
   </style>
 </head>
 <body>
 
+  <!-- Your image list -->
   <img src="images/page.jpg" alt="">
   <img src="images/page2.jpg" alt="">
   <img src="images/page3.jpg" alt="">
@@ -87,55 +115,39 @@
   <img src="images/page37.jpg" alt="">
   <img src="images/page38.jpg" alt="">
 
-
-    <div class="text-section">
-
-    <br>
-    <br>
-    <br>
-    <br>
-    <br>
-    <br>
-    <br>
+  <div class="text-section">
+    <br><br><br><br><br><br><br>
     Juraj Božić, mag.ing.arch.<br>
     Hamburg, Germany<br>
     juraj.bozic@outlook.com<br>
     www.linkedin.com/in/juraj-bozic<br>
-    <br>
-    <br>
-    <br>
-    <br>
-    <br>
-    <br>
-    <br>
-
-  <a href="inspiration.html" style="display:inline-block; margin-top:40px; font-size:12px; text-decoration:none; color:black; padding:10px 20px; border-radius:4px;">Inspiration →</a>
-
-    <br>
-    <br>
-    <br>
-    <br>
-      
-<a id="bottom"></a>
-
-<script>
-  // Disable right-click (desktop)
-  document.addEventListener('contextmenu', event => event.preventDefault());
-
-  // Disable long-press saving (mobile) without breaking scroll
-  const images = document.querySelectorAll('img');
-  images.forEach(img => {
-    img.addEventListener('contextmenu', e => e.preventDefault()); // disable context menu
-    img.addEventListener('dragstart', e => e.preventDefault());   // disable dragging
-    img.style.userSelect = 'none';  // prevent text selection
-    img.style.pointerEvents = 'auto';
-  });
-</script>
-
-
-
+    <br><br><br><br><br><br><br>
+    <a href="inspiration.html" class="inspiration">Inspiration →</a>
+    <br><br><br><br>
+    <a id="bottom"></a>
   </div>
 
+  <script>
+    // Keep context menu disabled (desktop). This does not block touch scrolling.
+    document.addEventListener('contextmenu', function(e) {
+      // only block the context menu on images (safer than blocking for whole page)
+      if (e.target && e.target.tagName === 'IMG') {
+        e.preventDefault();
+      }
+    });
 
+    // Disable dragstart for images (prevents ghost drag)
+    document.querySelectorAll('img').forEach(function(img) {
+      img.addEventListener('dragstart', function(e) {
+        e.preventDefault();
+      }, false);
+    });
+
+    /* 
+      Debug helper (uncomment to show touch events and preventDefault occurrences)
+      Useful if you still see scrolling blocked — open console on remote debug to see logs.
+    */
+    // window.addEventListener('touchstart', e => console.log('touchstart', e.target.tagName), {passive: true});
+  </script>
 </body>
 </html>
